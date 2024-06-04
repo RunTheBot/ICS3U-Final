@@ -1,5 +1,5 @@
 from Processing3 import *
-from components.buttonClass import *
+from components.button import *
 from util.loadSun import draw_sun
 from util.screenManager import *
 

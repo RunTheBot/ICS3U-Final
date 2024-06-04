@@ -1,6 +1,6 @@
 from Processing3 import *
 from util.tickCounter import *
-from components.buttonClass import *
+from components.button import *
 from components.fpsCounter import *
 from Screens.MainMenu import *
 from util.screenManager import *
