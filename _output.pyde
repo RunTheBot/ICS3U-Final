@@ -1,6 +1,6 @@
 # Compilation Strategy: dev.badbird.processing.compiler.strategy.impl.graph.GraphCompilationStrategy
 # GRAPH:
-# isDirected: true, allowsSelfLoops: false, nodes: [util.loadSun.py, util.tickCounter.py, Screens.MainMenu.py, main.py, util.screenManager.py, classTemplate.py, components.buttonClass.py, characterClass.py, Screens.InstructionScreen.py, util.triggerUtil.py, components.fpsCounter.py], edges: [<Screens.MainMenu.py -> util.screenManager.py>, <Screens.MainMenu.py -> components.buttonClass.py>, <main.py -> util.tickCounter.py>, <main.py -> util.loadSun.py>, <main.py -> util.screenManager.py>, <main.py -> components.buttonClass.py>, <main.py -> Screens.MainMenu.py>, <main.py -> Screens.InstructionScreen.py>, <main.py -> util.triggerUtil.py>, <main.py -> components.fpsCounter.py>, <components.buttonClass.py -> util.triggerUtil.py>, <Screens.InstructionScreen.py -> util.screenManager.py>, <Screens.InstructionScreen.py -> components.buttonClass.py>]
+# isDirected: true, allowsSelfLoops: false, nodes: [util.loadSun.py, util.tickCounter.py, Screens.MainMenu.py, main.py, util.screenManager.py, classTemplate.py, components.buttonClass.py, characterClass.py, Screens.InstructionScreen.py, util.triggerUtil.py, components.fpsCounter.py], edges: [<Screens.MainMenu.py -> util.loadSun.py>, <Screens.MainMenu.py -> util.screenManager.py>, <Screens.MainMenu.py -> components.buttonClass.py>, <main.py -> util.tickCounter.py>, <main.py -> util.loadSun.py>, <main.py -> util.screenManager.py>, <main.py -> components.buttonClass.py>, <main.py -> Screens.MainMenu.py>, <main.py -> Screens.InstructionScreen.py>, <main.py -> util.triggerUtil.py>, <main.py -> components.fpsCounter.py>, <components.buttonClass.py -> util.triggerUtil.py>, <Screens.InstructionScreen.py -> util.loadSun.py>, <Screens.InstructionScreen.py -> util.screenManager.py>, <Screens.InstructionScreen.py -> components.buttonClass.py>]
 
 # COMPILER_BEGIN: util.tickCounter.py
 def tick_update():
@@ -18,12 +18,20 @@ def isInterval(interval):
 # COMPILER_END: util.tickCounter.py
 
 # COMPILER_BEGIN: util.loadSun.py
+
+
 def loadSun():
     global sun
     sun = []
     for i in range(300):
         # there are images labeled from 000 to 299
-        sun.append(loadImage("sunYellow" + str(i).zfill(3) + ".gif"))
+        sun.append(loadImage("sun/sunYellow" + str(i).zfill(3) + ".gif"))
+
+def draw_sun():
+    global sun, tick, centerX, centerY
+    sunFrame = int(tick / 2) % 300
+    imageMode(CENTER)
+    image(sun[sunFrame], centerX, centerY-110)
 
 # COMPILER_END: util.loadSun.py
 
@@ -40,7 +48,6 @@ def switchScreen(screen):
 
 
 
-# Define the Trigger constructor
 def trigger_constructor( mode ):
     return {
         # "event": event,
@@ -50,7 +57,6 @@ def trigger_constructor( mode ):
         "state": False
     }
 
-# Define the Trigger update method
 def trigger_update(trigger, event):
     global TriggerMode
     currentEventState = event
@@ -71,14 +77,11 @@ def trigger_update(trigger, event):
 
 def trigger_setup():
     global TriggerMode, mousePressedTrigger
-    # Define the TriggerMode enum
-    # Define the TriggerMode dict
     TriggerMode = {
         "RISING_EDGE": 1,
         "FALLING_EDGE": 2,
         "REPEAT": 3
     }
-    # MousePressed as an example
     mousePressedTrigger = trigger_constructor(TriggerMode["RISING_EDGE"])
 
 
@@ -165,10 +168,7 @@ def button_isClicked(button):
 
 
 def mainMenu_draw():
-    global buttons, sun, tick, centerX, centerY
-    sunFrame = int(tick / 2) % 300
-    imageMode(CENTER)
-    image(sun[sunFrame], centerX, centerY-110, 512, 512)
+    draw_sun()
 
 
 def mainMenu_init():
@@ -218,11 +218,10 @@ def mainMenu_init():
 # COMPILER_BEGIN: Screens.InstructionScreen.py
 
 
+
 def instructions_draw():
     global buttons, sun, tick, centerX, centerY
-    sunFrame = int(tick / 2) % 300
-    imageMode(CENTER)
-    image(sun[sunFrame], centerX, centerY-110, 512, 512)
+    draw_sun()
     textSize(32)
     fill(255)
     text("Instructions (All is Placeholder)", centerX, 100)

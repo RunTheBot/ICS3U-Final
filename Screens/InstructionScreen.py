@@ -1,12 +1,12 @@
 from Processing3 import *
 from components.buttonClass import *
+from util.loadSun import draw_sun
 from util.screenManager import *
+
 
 def instructions_draw():
     global buttons, sun, tick, centerX, centerY
-    sunFrame = int(tick / 2) % 300
-    imageMode(CENTER)
-    image(sun[sunFrame], centerX, centerY-110, 512, 512)
+    draw_sun()
     textSize(32)
     fill(255)
     text("Instructions (All is Placeholder)", centerX, 100)

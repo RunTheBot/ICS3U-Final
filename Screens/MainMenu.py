@@ -1,12 +1,10 @@
 from Processing3 import *
 from components.buttonClass import *
+from util.loadSun import draw_sun
 from util.screenManager import *
 
 def mainMenu_draw():
-    global buttons, sun, tick, centerX, centerY
-    sunFrame = int(tick / 2) % 300
-    imageMode(CENTER)
-    image(sun[sunFrame], centerX, centerY-110, 512, 512)
+    draw_sun()
 
 
 def mainMenu_init():

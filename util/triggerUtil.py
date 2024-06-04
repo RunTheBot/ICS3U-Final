@@ -1,7 +1,6 @@
 from Processing3 import *
 
 
-# Define the Trigger constructor
 def trigger_constructor( mode ):
     return {
         # "event": event,
@@ -11,7 +10,6 @@ def trigger_constructor( mode ):
         "state": False
     }
 
-# Define the Trigger update method
 def trigger_update(trigger, event):
     global TriggerMode
     currentEventState = event
@@ -32,13 +30,10 @@ def trigger_update(trigger, event):
 
 def trigger_setup():
     global TriggerMode, mousePressedTrigger
-    # Define the TriggerMode enum
-    # Define the TriggerMode dict
     TriggerMode = {
         "RISING_EDGE": 1,
         "FALLING_EDGE": 2,
         "REPEAT": 3
     }
-    # MousePressed as an example
     mousePressedTrigger = trigger_constructor(TriggerMode["RISING_EDGE"])
 
