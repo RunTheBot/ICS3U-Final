@@ -1,6 +1,6 @@
 # Compilation Strategy: dev.badbird.processing.compiler.strategy.impl.graph.GraphCompilationStrategy
 # GRAPH:
-# isDirected: true, allowsSelfLoops: false, nodes: [util.loadSun.py, util.tickCounter.py, Screens.MainMenu.py, main.py, util.screenManager.py, classTemplate.py, components.buttonClass.py, characterClass.py, Screens.InstructionScreen.py, util.triggerUtil.py, components.fpsCounter.py], edges: [<Screens.MainMenu.py -> util.loadSun.py>, <Screens.MainMenu.py -> util.screenManager.py>, <Screens.MainMenu.py -> components.buttonClass.py>, <main.py -> util.tickCounter.py>, <main.py -> util.loadSun.py>, <main.py -> util.screenManager.py>, <main.py -> components.buttonClass.py>, <main.py -> Screens.MainMenu.py>, <main.py -> Screens.InstructionScreen.py>, <main.py -> util.triggerUtil.py>, <main.py -> components.fpsCounter.py>, <components.buttonClass.py -> util.triggerUtil.py>, <Screens.InstructionScreen.py -> util.loadSun.py>, <Screens.InstructionScreen.py -> util.screenManager.py>, <Screens.InstructionScreen.py -> components.buttonClass.py>]
+# isDirected: true, allowsSelfLoops: false, nodes: [util.loadSun.py, util.tickCounter.py, Screens.MainMenu.py, main.py, util.screenManager.py, classTemplate.py, components.button.py, characterClass.py, Screens.InstructionScreen.py, util.triggerUtil.py, components.fpsCounter.py], edges: [<Screens.MainMenu.py -> util.loadSun.py>, <Screens.MainMenu.py -> util.screenManager.py>, <Screens.MainMenu.py -> components.button.py>, <main.py -> util.tickCounter.py>, <main.py -> util.loadSun.py>, <main.py -> util.screenManager.py>, <main.py -> components.button.py>, <main.py -> Screens.MainMenu.py>, <main.py -> Screens.InstructionScreen.py>, <main.py -> util.triggerUtil.py>, <main.py -> components.fpsCounter.py>, <components.button.py -> util.triggerUtil.py>, <Screens.InstructionScreen.py -> util.loadSun.py>, <Screens.InstructionScreen.py -> util.screenManager.py>, <Screens.InstructionScreen.py -> components.button.py>]
 
 # COMPILER_BEGIN: util.tickCounter.py
 def tick_update():
@@ -87,7 +87,7 @@ def trigger_setup():
 
 # COMPILER_END: util.triggerUtil.py
 
-# COMPILER_BEGIN: components.buttonClass.py
+# COMPILER_BEGIN: components.button.py
 # # Fake OOP because classes are not allowed in this project
 
 # def constructor(**kwargs):
@@ -162,7 +162,7 @@ def button_isClicked(button):
     
 
 
-# COMPILER_END: components.buttonClass.py
+# COMPILER_END: components.button.py
 
 # COMPILER_BEGIN: Screens.MainMenu.py
 
