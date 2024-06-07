@@ -1,14 +1,15 @@
 from Processing3 import *
 from components.button import *
-from util.loadSun import draw_sun
+from util.sunUtil import draw_sun
 from util.screenManager import *
+from util.maskTransition import maskTransition_draw
 
 def mainMenu_draw():
     draw_sun()
 
 
 def mainMenu_init():
-    global buttons, centerX, SCREENS
+    global buttons, centerX, SCREENS, commands
     buttons = []
     sizeX, sizeY = 100, 50  # Button size
     buttonCenterX = centerX - sizeX / 2
@@ -29,7 +30,7 @@ def mainMenu_init():
             None, 
             buttonHover,
             textHover,
-            lambda: switchScreen(SCREENS["GAME"])
+            lambda: commands.append(maskTransition_draw)
         )
     )
     buttons.append(

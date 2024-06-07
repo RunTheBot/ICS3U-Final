@@ -1,19 +1,21 @@
 from Processing3 import *
+from util.maskTransition import maskTransition_setup
 from util.tickCounter import *
 from components.button import *
 from components.fpsCounter import *
 from Screens.MainMenu import *
 from util.screenManager import *
-from util.loadSun import *
+from util.sunUtil import *
 from Screens.InstructionScreen import *
 from util.triggerUtil import *
 
 
 def setup():
     size(1280, 720)
-    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen
+    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands
     centerX, centerY = width // 2, height // 2
     buttons = []
+    commands = []
     loadSun()
     tick_setup()
     trigger_setup()
@@ -37,6 +39,8 @@ def setup():
         "GAME_OVER": 4
     }
 
+    maskTransition_setup()
+
     currentScreen = SCREENS["MAIN_MENU"]
     currentScreen["init"]()
 
@@ -45,7 +49,7 @@ def draw():
 
     tick_update()
     noStroke()
-    background(0)
+    background(128)
     fpsCounter_draw()
 
     trigger_update(mousePressedTrigger, mousePressed)
@@ -53,6 +57,12 @@ def draw():
     currentScreen["draw"]()
     for button in buttons:
         button_draw(button)
+    
+    for idx, command in enumerate(commands):
+        if command():
+            commands.pop(idx)
+        
+
 
     
         

@@ -1,6 +1,110 @@
 # Compilation Strategy: dev.badbird.processing.compiler.strategy.impl.graph.GraphCompilationStrategy
 # GRAPH:
-# isDirected: true, allowsSelfLoops: false, nodes: [util.loadSun.py, util.tickCounter.py, Screens.MainMenu.py, main.py, util.screenManager.py, classTemplate.py, components.button.py, characterClass.py, Screens.InstructionScreen.py, util.triggerUtil.py, components.fpsCounter.py], edges: [<Screens.MainMenu.py -> util.loadSun.py>, <Screens.MainMenu.py -> util.screenManager.py>, <Screens.MainMenu.py -> components.button.py>, <main.py -> util.tickCounter.py>, <main.py -> util.loadSun.py>, <main.py -> util.screenManager.py>, <main.py -> components.button.py>, <main.py -> Screens.MainMenu.py>, <main.py -> Screens.InstructionScreen.py>, <main.py -> util.triggerUtil.py>, <main.py -> components.fpsCounter.py>, <components.button.py -> util.triggerUtil.py>, <Screens.InstructionScreen.py -> util.loadSun.py>, <Screens.InstructionScreen.py -> util.screenManager.py>, <Screens.InstructionScreen.py -> components.button.py>]
+# isDirected: true, allowsSelfLoops: false, nodes: [Scripts.CreateCircleMask.py, util.sunUtil.py, util.screenManager.py, classTemplate.py, util.transition.py, characterClass.py, Screens.InstructionScreen.py, util.triggerUtil.py, components.fpsCounter.py, util.maskTransition.py, util.tickCounter.py, util.animation.py, Screens.MainMenu.py, main.py, components.button.py], edges: [<util.sunUtil.py -> util.animation.py>, <util.transition.py -> util.screenManager.py>, <util.transition.py -> util.animation.py>, <Screens.InstructionScreen.py -> util.sunUtil.py>, <Screens.InstructionScreen.py -> util.screenManager.py>, <Screens.InstructionScreen.py -> components.button.py>, <util.maskTransition.py -> util.animation.py>, <util.maskTransition.py -> util.transition.py>, <Screens.MainMenu.py -> util.maskTransition.py>, <Screens.MainMenu.py -> util.screenManager.py>, <Screens.MainMenu.py -> components.button.py>, <Screens.MainMenu.py -> util.sunUtil.py>, <main.py -> util.maskTransition.py>, <main.py -> util.tickCounter.py>, <main.py -> Screens.MainMenu.py>, <main.py -> util.sunUtil.py>, <main.py -> util.screenManager.py>, <main.py -> components.button.py>, <main.py -> Screens.InstructionScreen.py>, <main.py -> util.triggerUtil.py>, <main.py -> components.fpsCounter.py>, <components.button.py -> util.triggerUtil.py>]
+
+# COMPILER_BEGIN: util.animation.py
+
+
+def load_animation(base_path_prefix, base_path_sufix, start, end, frame_rate=10, pos=(0, 0), numberProcessor=lambda x: x, reversed=False):
+    animation = {
+        "frame": 0,
+        "speed": frame_rate,
+        "tickSinceLastFrame": 0,
+        "animation": [],
+        "looped": False,
+        "pos": pos
+    }
+    step = -1 if reversed else 1
+    if reversed:
+        end, start = start-1, end-1
+
+    for i in range(start, end, step):
+        animation["animation"].append(loadImage(base_path_prefix + str(numberProcessor(i)) + base_path_sufix))
+    return animation
+
+def draw_animation(animation):
+    global tick
+    imageMode(CENTER)
+    image(animation["animation"][animation["frame"]], animation["pos"][0], animation["pos"][1])
+
+def play_animation(animation):
+    # tick increments 60 times per second
+    animation["tickSinceLastFrame"] += 1
+    if animation["tickSinceLastFrame"] >= animation["speed"]:
+        animation["tickSinceLastFrame"] = 0
+        animation["frame"] += 1
+        if animation["frame"] >= len(animation["animation"]):
+            animation["frame"] = 0
+            if not animation["looped"]:
+                animation["looped"] = True
+    
+    
+
+# COMPILER_END: util.animation.py
+
+# COMPILER_BEGIN: util.screenManager.py
+def switchScreen(screen):
+    global currentScreen
+    currentScreen = screen
+    currentScreen["init"]()
+    print("Switched to screen: " + str(screen))
+
+# COMPILER_END: util.screenManager.py
+
+# COMPILER_BEGIN: util.transition.py
+
+
+def transition_construtor(animation, nextScreen):
+    return {
+        "animation": animation,
+        "nextScreen": nextScreen
+    }
+
+def transition_play(transition):
+    global currentScreen
+    print("Transitioning to screen: " + str(transition["nextScreen"]))
+    play_animation(transition["animation"])
+    if transition["animation"]["looped"]:
+        switchScreen(transition["nextScreen"])
+        return True
+    draw_animation(transition["animation"])
+    return False
+    
+    
+    
+    
+
+# COMPILER_END: util.transition.py
+
+# COMPILER_BEGIN: util.maskTransition.py
+
+
+def maskTransition_setup():
+    global maskTransition, centerX, centerY, SCREENS
+
+    # Loop through the numbers from 0 to 91
+    # for i in range(92):
+    #     # Construct the file path
+    #     file_path = "animation/circle_mask_" + str(i) + ".png"
+
+    #     # Load the image
+    #     img = loadImage(file_path)
+
+    #     # Append the image to the list
+    #     maskTransition_images.append(img)
+
+    maskTransition = transition_construtor(load_animation("animation/circle_mask_", ".png", 0, 92, 1, (centerX, centerY), reversed=True), SCREENS["GAME"])
+
+def maskTransition_draw():
+    global maskTransition
+
+    # Draw the current frame
+    return transition_play(maskTransition)
+
+
+    
+
+# COMPILER_END: util.maskTransition.py
 
 # COMPILER_BEGIN: util.tickCounter.py
 def tick_update():
@@ -16,33 +120,6 @@ def isInterval(interval):
   return tick % interval == 0
 
 # COMPILER_END: util.tickCounter.py
-
-# COMPILER_BEGIN: util.loadSun.py
-
-
-def loadSun():
-    global sun
-    sun = []
-    for i in range(300):
-        # there are images labeled from 000 to 299
-        sun.append(loadImage("sun/sunYellow" + str(i).zfill(3) + ".gif"))
-
-def draw_sun():
-    global sun, tick, centerX, centerY
-    sunFrame = int(tick / 2) % 300
-    imageMode(CENTER)
-    image(sun[sunFrame], centerX, centerY-110)
-
-# COMPILER_END: util.loadSun.py
-
-# COMPILER_BEGIN: util.screenManager.py
-def switchScreen(screen):
-    global currentScreen
-    currentScreen = screen
-    currentScreen["init"]()
-    print("Switched to screen: " + str(screen))
-
-# COMPILER_END: util.screenManager.py
 
 # COMPILER_BEGIN: util.triggerUtil.py
 
@@ -164,6 +241,30 @@ def button_isClicked(button):
 
 # COMPILER_END: components.button.py
 
+# COMPILER_BEGIN: util.sunUtil.py
+
+
+def sun_numberProcessor(i):
+    return str(i).zfill(3)
+
+def loadSun():
+    global sun
+    # sun = []
+    # for i in range(300):
+    #     # there are images labeled from 000 to 299
+    #     sun.append(loadImage("sun/sunYellow" + str(i).zfill(3) + ".gif"))
+    sun = load_animation("sun/sunYellow", ".gif", 0, 300, 2, (centerX, centerY-110), sun_numberProcessor)
+
+def draw_sun():
+    global sun, tick, centerX, centerY
+    # sunFrame = int(tick / 2) % 300
+    # imageMode(CENTER)
+    # image(sun[sunFrame], centerX, centerY-110)
+    play_animation(sun)
+    draw_animation(sun)
+
+# COMPILER_END: util.sunUtil.py
+
 # COMPILER_BEGIN: Screens.MainMenu.py
 
 
@@ -172,7 +273,7 @@ def mainMenu_draw():
 
 
 def mainMenu_init():
-    global buttons, centerX, SCREENS
+    global buttons, centerX, SCREENS, commands
     buttons = []
     sizeX, sizeY = 100, 50  # Button size
     buttonCenterX = centerX - sizeX / 2
@@ -193,7 +294,7 @@ def mainMenu_init():
             None, 
             buttonHover,
             textHover,
-            lambda: switchScreen(SCREENS["GAME"])
+            lambda: commands.append(maskTransition_draw)
         )
     )
     buttons.append(
@@ -276,9 +377,10 @@ def fpsCounter_draw():
 
 def setup():
     size(1280, 720)
-    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen
+    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands
     centerX, centerY = width // 2, height // 2
     buttons = []
+    commands = []
     loadSun()
     tick_setup()
     trigger_setup()
@@ -302,6 +404,8 @@ def setup():
         "GAME_OVER": 4
     }
 
+    maskTransition_setup()
+
     currentScreen = SCREENS["MAIN_MENU"]
     currentScreen["init"]()
 
@@ -310,7 +414,7 @@ def draw():
 
     tick_update()
     noStroke()
-    background(0)
+    background(128)
     fpsCounter_draw()
 
     trigger_update(mousePressedTrigger, mousePressed)
@@ -318,6 +422,12 @@ def draw():
     currentScreen["draw"]()
     for button in buttons:
         button_draw(button)
+    
+    for idx, command in enumerate(commands):
+        if command():
+            commands.pop(idx)
+        
+
 
     
         

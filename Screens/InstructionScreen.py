@@ -1,6 +1,6 @@
 from Processing3 import *
 from components.button import *
-from util.loadSun import draw_sun
+from util.sunUtil import draw_sun
 from util.screenManager import *
 
 
