@@ -1,6 +1,6 @@
 # Compilation Strategy: dev.badbird.processing.compiler.strategy.impl.graph.GraphCompilationStrategy
 # GRAPH:
-# isDirected: true, allowsSelfLoops: false, nodes: [Scripts.CreateCircleMask.py, util.sunUtil.py, util.screenManager.py, classTemplate.py, util.transition.py, characterClass.py, Screens.InstructionScreen.py, util.triggerUtil.py, components.fpsCounter.py, util.maskTransition.py, util.tickCounter.py, util.animation.py, Screens.MainMenu.py, main.py, components.button.py], edges: [<util.sunUtil.py -> util.animation.py>, <util.transition.py -> util.screenManager.py>, <util.transition.py -> util.animation.py>, <Screens.InstructionScreen.py -> util.sunUtil.py>, <Screens.InstructionScreen.py -> util.screenManager.py>, <Screens.InstructionScreen.py -> components.button.py>, <util.maskTransition.py -> util.animation.py>, <util.maskTransition.py -> util.transition.py>, <Screens.MainMenu.py -> util.maskTransition.py>, <Screens.MainMenu.py -> util.screenManager.py>, <Screens.MainMenu.py -> components.button.py>, <Screens.MainMenu.py -> util.sunUtil.py>, <main.py -> util.maskTransition.py>, <main.py -> util.tickCounter.py>, <main.py -> Screens.MainMenu.py>, <main.py -> util.sunUtil.py>, <main.py -> util.screenManager.py>, <main.py -> components.button.py>, <main.py -> Screens.InstructionScreen.py>, <main.py -> util.triggerUtil.py>, <main.py -> components.fpsCounter.py>, <components.button.py -> util.triggerUtil.py>]
+# isDirected: true, allowsSelfLoops: false, nodes: [Scripts.CreateCircleMask.py, util.sunUtil.py, util.screenManager.py, classTemplate.py, util.transition.py, Screens.GameScreen.py, characterClass.py, Screens.InstructionScreen.py, util.triggerUtil.py, components.fpsCounter.py, util.maskTransition.py, util.tickCounter.py, util.animation.py, Screens.MainMenu.py, main.py, components.button.py], edges: [<util.sunUtil.py -> util.animation.py>, <util.transition.py -> util.screenManager.py>, <util.transition.py -> util.animation.py>, <Screens.InstructionScreen.py -> util.sunUtil.py>, <Screens.InstructionScreen.py -> util.screenManager.py>, <Screens.InstructionScreen.py -> components.button.py>, <util.maskTransition.py -> util.animation.py>, <util.maskTransition.py -> util.transition.py>, <Screens.MainMenu.py -> util.maskTransition.py>, <Screens.MainMenu.py -> util.screenManager.py>, <Screens.MainMenu.py -> components.button.py>, <Screens.MainMenu.py -> util.sunUtil.py>, <main.py -> util.maskTransition.py>, <main.py -> util.tickCounter.py>, <main.py -> Screens.MainMenu.py>, <main.py -> util.sunUtil.py>, <main.py -> util.screenManager.py>, <main.py -> components.button.py>, <main.py -> Screens.InstructionScreen.py>, <main.py -> util.triggerUtil.py>, <main.py -> components.fpsCounter.py>, <components.button.py -> util.triggerUtil.py>]
 
 # COMPILER_BEGIN: util.animation.py
 
@@ -246,20 +246,25 @@ def button_isClicked(button):
 
 def sun_numberProcessor(i):
     return str(i).zfill(3)
+def sky_numberProcessor(i):
+    return str(i).zfill(2)
 
 def loadSun():
-    global sun
+    global sun, sky
     # sun = []
     # for i in range(300):
     #     # there are images labeled from 000 to 299
     #     sun.append(loadImage("sun/sunYellow" + str(i).zfill(3) + ".gif"))
     sun = load_animation("sun/sunYellow", ".gif", 0, 300, 2, (centerX, centerY-110), sun_numberProcessor)
+    sky = load_animation("sun/sky/sky", ".gif", 0, 42, 10, (centerX, centerY), sky_numberProcessor)
 
 def draw_sun():
-    global sun, tick, centerX, centerY
+    global sun, sky, tick, centerX, centerY
     # sunFrame = int(tick / 2) % 300
     # imageMode(CENTER)
     # image(sun[sunFrame], centerX, centerY-110)
+    play_animation(sky)
+    draw_animation(sky)
     play_animation(sun)
     draw_animation(sun)
 

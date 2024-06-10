@@ -49,7 +49,7 @@ def draw():
 
     tick_update()
     noStroke()
-    background(128)
+    background(0)
     fpsCounter_draw()
 
     trigger_update(mousePressedTrigger, mousePressed)
