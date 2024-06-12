@@ -36,4 +36,5 @@ def trigger_setup():
         "REPEAT": 3
     }
     mousePressedTrigger = trigger_constructor(TriggerMode["RISING_EDGE"])
+    mouseReleasedTrigger = trigger_constructor(TriggerMode["FALLING_EDGE"])
 

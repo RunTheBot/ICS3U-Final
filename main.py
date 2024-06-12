@@ -1,5 +1,6 @@
 from Processing3 import *
-from util.maskTransition import maskTransition_setup
+from Screens.GameScreen import *
+from util.maskTransition import *
 from util.tickCounter import *
 from components.button import *
 from components.fpsCounter import *
@@ -19,6 +20,7 @@ def setup():
     loadSun()
     tick_setup()
     trigger_setup()
+    light_setup()
     # Screen manager setup
     global currentScreen, SCREENS
 
@@ -28,7 +30,11 @@ def setup():
             "setup": lambda: None,
             "init": mainMenu_init
         },
-        "GAME": 1,
+        "GAME": {
+            "draw": gameScreen_draw,
+            "setup": lambda: None,
+            "init": gameScreen_init
+        },
         "INSTRUCTIONS": {
             "draw": instructions_draw,
             "setup": lambda: None,
@@ -57,7 +63,7 @@ def draw():
     currentScreen["draw"]()
     for button in buttons:
         button_draw(button)
-    
+
     for idx, command in enumerate(commands):
         if command():
             commands.pop(idx)

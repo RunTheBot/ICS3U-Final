@@ -1,4 +1,4 @@
-# from PIL import Image, ImageDraw
+# from PIL import Image, ImageDraw 
 import os
 
 def create_circle_mask(radius, step):
@@ -11,19 +11,19 @@ def create_circle_mask(radius, step):
     # Loop until the radius is greater than 0
     while radius >= 0:
         # Create a new image with a black background and an alpha channel
-        img = Image.new('RGBA', (width, height), 'black')
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
 
         # Create a draw object
         draw = ImageDraw.Draw(img)
 
         # Draw the circle mask with a transparent color
-        draw.ellipse((center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius), fill=(0, 0, 0, 0))
+        draw.ellipse((center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius), fill=(255, 255, 255, 255))
 
         # Scale the image up to create the pixel art effect
         img = img.resize((1280,720), Image.NEAREST)
 
         # Save the image
-        img.save(f'circle_mask_{radius}.png')
+        img.save(f'light_{radius}.png')
 
         # Decrease the radius for the next circle
         radius -= step

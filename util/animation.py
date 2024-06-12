@@ -14,6 +14,7 @@ def load_animation(base_path_prefix, base_path_sufix, start, end, frame_rate=10,
         end, start = start-1, end-1
 
     for i in range(start, end, step):
+        delay(1)
         animation["animation"].append(loadImage(base_path_prefix + str(numberProcessor(i)) + base_path_sufix))
     return animation
 

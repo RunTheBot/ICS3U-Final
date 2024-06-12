@@ -9,13 +9,13 @@ def instructions_draw():
     draw_sun()
     textSize(32)
     fill(255)
-    text("Instructions (All is Placeholder)", centerX, 100)
+    text("Instructions", centerX, 100)
     textSize(20)
     fill(255)
     text("Use the 'esc' key to return to the main menu", centerX, 400)
     text("Use the 'q' key to quit the game", centerX, 450)
-    text("Defeat the enemies to win", centerX, 500)
-    text("Good luck!", centerX, 550)
+    text("Use Mouse to move pelican around", centerX, 500)
+    text("Click and drage the light together to merge them", centerX, 550)
 
 def instructions_init():
     # # back button

@@ -1,6 +1,6 @@
 # Compilation Strategy: dev.badbird.processing.compiler.strategy.impl.graph.GraphCompilationStrategy
 # GRAPH:
-# isDirected: true, allowsSelfLoops: false, nodes: [Scripts.CreateCircleMask.py, util.sunUtil.py, util.screenManager.py, classTemplate.py, util.transition.py, Screens.GameScreen.py, characterClass.py, Screens.InstructionScreen.py, util.triggerUtil.py, components.fpsCounter.py, util.maskTransition.py, util.tickCounter.py, util.animation.py, Screens.MainMenu.py, main.py, components.button.py], edges: [<util.sunUtil.py -> util.animation.py>, <util.transition.py -> util.screenManager.py>, <util.transition.py -> util.animation.py>, <Screens.InstructionScreen.py -> util.sunUtil.py>, <Screens.InstructionScreen.py -> util.screenManager.py>, <Screens.InstructionScreen.py -> components.button.py>, <util.maskTransition.py -> util.animation.py>, <util.maskTransition.py -> util.transition.py>, <Screens.MainMenu.py -> util.maskTransition.py>, <Screens.MainMenu.py -> util.screenManager.py>, <Screens.MainMenu.py -> components.button.py>, <Screens.MainMenu.py -> util.sunUtil.py>, <main.py -> util.maskTransition.py>, <main.py -> util.tickCounter.py>, <main.py -> Screens.MainMenu.py>, <main.py -> util.sunUtil.py>, <main.py -> util.screenManager.py>, <main.py -> components.button.py>, <main.py -> Screens.InstructionScreen.py>, <main.py -> util.triggerUtil.py>, <main.py -> components.fpsCounter.py>, <components.button.py -> util.triggerUtil.py>]
+# isDirected: true, allowsSelfLoops: false, nodes: [Scripts.CreateCircleMask.py, Scripts.CreateCircles.py, util.sunUtil.py, util.screenManager.py, classTemplate.py, util.transition.py, Screens.GameScreen.py, Screens.InstructionScreen.py, util.triggerUtil.py, components.fpsCounter.py, components.light.py, util.maskTransition.py, util.tickCounter.py, util.animation.py, Screens.MainMenu.py, main.py, components.button.py], edges: [<util.sunUtil.py -> util.animation.py>, <util.transition.py -> util.screenManager.py>, <util.transition.py -> util.animation.py>, <Screens.GameScreen.py -> components.light.py>, <Screens.InstructionScreen.py -> util.sunUtil.py>, <Screens.InstructionScreen.py -> util.screenManager.py>, <Screens.InstructionScreen.py -> components.button.py>, <util.maskTransition.py -> util.animation.py>, <util.maskTransition.py -> util.transition.py>, <Screens.MainMenu.py -> util.maskTransition.py>, <Screens.MainMenu.py -> util.screenManager.py>, <Screens.MainMenu.py -> components.button.py>, <Screens.MainMenu.py -> util.sunUtil.py>, <main.py -> util.maskTransition.py>, <main.py -> util.tickCounter.py>, <main.py -> Screens.MainMenu.py>, <main.py -> util.sunUtil.py>, <main.py -> util.screenManager.py>, <main.py -> components.button.py>, <main.py -> Screens.GameScreen.py>, <main.py -> Screens.InstructionScreen.py>, <main.py -> util.triggerUtil.py>, <main.py -> components.fpsCounter.py>, <components.button.py -> util.triggerUtil.py>]
 
 # COMPILER_BEGIN: util.animation.py
 
@@ -19,6 +19,7 @@ def load_animation(base_path_prefix, base_path_sufix, start, end, frame_rate=10,
         end, start = start-1, end-1
 
     for i in range(start, end, step):
+        delay(1)
         animation["animation"].append(loadImage(base_path_prefix + str(numberProcessor(i)) + base_path_sufix))
     return animation
 
@@ -160,6 +161,7 @@ def trigger_setup():
         "REPEAT": 3
     }
     mousePressedTrigger = trigger_constructor(TriggerMode["RISING_EDGE"])
+    mouseReleasedTrigger = trigger_constructor(TriggerMode["FALLING_EDGE"])
 
 
 # COMPILER_END: util.triggerUtil.py
@@ -321,6 +323,141 @@ def mainMenu_init():
 
 # COMPILER_END: Screens.MainMenu.py
 
+# COMPILER_BEGIN: components.light.py
+
+import uuid
+
+def light_setup():
+    global lightAssets, lights, currDraggingLight
+    lights = {}
+    lightAssets = {}
+    currDraggingLight = None
+
+def light_load(i):
+    global lightAssets, lights
+    if i in lightAssets:
+        return lightAssets[i]
+    else:
+        lightAssets[i] = loadImage("light/light_" + str(i) + ".png")
+        return lightAssets[i]
+
+def light_constructor(size, x, y):
+    global lights
+    light_uuid = str(uuid.uuid4())
+    lights[light_uuid] = {
+        "size": size,
+        "radius": ((size + 0.5) * 8) - 4,
+        "x": x,
+        "y": y,
+        "uuid": light_uuid
+    }
+    return uuid
+
+def light_draw(light):
+    global centerX, centerY
+
+
+
+    imageMode(CENTER)
+    image(light_load(light["size"]), light["x"], light["y"])
+    if True:
+        # draw a circle as radius
+        stroke(255, 0, 0)
+        strokeWeight(2)
+        fill(0, 0, 0, 0)
+        ellipse(light["x"], light["y"], light["radius"] * 2, light["radius"] * 2)
+
+def light_merge(light1, light2):
+    global lights
+    # make sure light1 is the bigger one
+    if light1["size"] > light2["size"]:
+        light1, light2 = light2, light1
+    # add the size of the smaller light to the bigger one
+    lights[light1["uuid"]]["size"] += lights[light2["uuid"]]["size"]
+    #nake the new light in the middle of the two
+    lights[light1["uuid"]]["x"] = (lights[light1["uuid"]]["x"] + lights[light2["uuid"]]["x"]) / 2
+    lights[light1["uuid"]]["y"] = (lights[light1["uuid"]]["y"] + lights[light2["uuid"]]["y"]) / 2
+    # Recalculate the radius
+    lights[light1["uuid"]]["radius"] = ((lights[light1["uuid"]]["size"] + 0.5) * 8) - 4
+
+    print("Merged", light1["uuid"], light2["uuid"])
+    # remove the smaller light
+    del lights[light2["uuid"]]
+
+def light_checkCollision():
+    global lights
+    for light_key in lights.keys():
+        for otherLight_key in lights.keys():
+            light = lights.get(light_key)
+            otherLight = lights.get(otherLight_key)
+            if light == None or otherLight == None:
+                continue
+            if light["uuid"] == otherLight["uuid"]:
+                continue
+            
+            # if they touch merge them
+            center_distance = sqrt((light["x"] - otherLight["x"])**2 + (light["y"] - otherLight["y"])**2)
+            if center_distance < light["radius"] + otherLight["radius"]:
+                light_merge(light, otherLight)
+
+def light_drawAll():
+    global lights
+    for light in lights.values():
+        print(light["x"], light["y"])
+        light_draw(light)
+    handleDrag()
+    light_checkCollision()
+
+def light_getHovered():
+    for light in lights.values():
+        if light["x"] + light["radius"] > mouseX and light["x"] - light["radius"] < mouseX:
+            if light["y"] + light["radius"] > mouseY and light["y"] - light["radius"] < mouseY:
+                return light
+    return None
+
+def handleDrag():
+    global currDraggingLight
+
+    # if currDraggingLight == None and mousePressed and mouseButton == LEFT:
+    #     currDraggingLight = light_getHovered()
+    # else:
+    #     currDraggingLight = None
+
+    if mousePressed and mouseButton == LEFT:
+        if currDraggingLight == None:
+            currDraggingLight = light_getHovered()
+    else:
+        currDraggingLight = None
+
+    if currDraggingLight != None:
+        currDraggingLight["x"] = mouseX
+        currDraggingLight["y"] = mouseY
+
+# COMPILER_END: components.light.py
+
+# COMPILER_BEGIN: Screens.GameScreen.py
+import random
+
+
+def gameScreen_draw():
+    global nextSpawnTicks
+    if nextSpawnTicks <= 0: 
+        print("Spawning")
+        nextSpawnTicks = random.randint(120, 600)
+        light_constructor(7, random.randint(0, width), random.randint(0, height))
+    light_drawAll()
+
+    
+    nextSpawnTicks -= 1
+
+def gameScreen_init():
+    global buttons, centerX, centerY, SCREENS, nextSpawnTicks, lights
+    nextSpawnTicks = 0
+    buttons = []
+    light_constructor(7, centerX, centerY)
+
+# COMPILER_END: Screens.GameScreen.py
+
 # COMPILER_BEGIN: Screens.InstructionScreen.py
 
 
@@ -330,13 +467,13 @@ def instructions_draw():
     draw_sun()
     textSize(32)
     fill(255)
-    text("Instructions (All is Placeholder)", centerX, 100)
+    text("Instructions", centerX, 100)
     textSize(20)
     fill(255)
     text("Use the 'esc' key to return to the main menu", centerX, 400)
     text("Use the 'q' key to quit the game", centerX, 450)
-    text("Defeat the enemies to win", centerX, 500)
-    text("Good luck!", centerX, 550)
+    text("Use Mouse to move pelican around", centerX, 500)
+    text("Click and drage the light together to merge them", centerX, 550)
 
 def instructions_init():
     # # back button
@@ -389,6 +526,7 @@ def setup():
     loadSun()
     tick_setup()
     trigger_setup()
+    light_setup()
     # Screen manager setup
     global currentScreen, SCREENS
 
@@ -398,7 +536,11 @@ def setup():
             "setup": lambda: None,
             "init": mainMenu_init
         },
-        "GAME": 1,
+        "GAME": {
+            "draw": gameScreen_draw,
+            "setup": lambda: None,
+            "init": gameScreen_init
+        },
         "INSTRUCTIONS": {
             "draw": instructions_draw,
             "setup": lambda: None,
@@ -419,7 +561,7 @@ def draw():
 
     tick_update()
     noStroke()
-    background(128)
+    background(0)
     fpsCounter_draw()
 
     trigger_update(mousePressedTrigger, mousePressed)
@@ -427,7 +569,7 @@ def draw():
     currentScreen["draw"]()
     for button in buttons:
         button_draw(button)
-    
+
     for idx, command in enumerate(commands):
         if command():
             commands.pop(idx)
