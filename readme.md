@@ -1,9 +1,9 @@
 # Run _output.pyde
 
 # Currently working on
-transition animation
 
-I was able to complete everything for this stage
+- Adding a `Player` not a class
+- Adding the drakness or a PID loop 
 
 # Challeges
 
@@ -11,4 +11,4 @@ No classes :(
 
 # Next steps
 
-Gameplay and end screen
+Finish game 
