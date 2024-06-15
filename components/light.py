@@ -1,6 +1,5 @@
 from Processing3 import *
 import uuid
-
 def light_setup():
     global lightAssets, lights, currDraggingLight
     lights = {}
@@ -23,14 +22,12 @@ def light_constructor(size, x, y):
         "radius": ((size + 0.5) * 8) - 4,
         "x": x,
         "y": y,
-        "uuid": light_uuid
+        "uuid": light_uuid,
     }
-    return uuid
+    return light_uuid
 
 def light_draw(light):
     global centerX, centerY
-
-
 
     imageMode(CENTER)
     image(light_load(light["size"]), light["x"], light["y"])
@@ -44,15 +41,16 @@ def light_draw(light):
 def light_merge(light1, light2):
     global lights
     # make sure light1 is the bigger one
-    if light1["size"] > light2["size"]:
+    if light1["size"] < light2["size"]:
         light1, light2 = light2, light1
     # add the size of the smaller light to the bigger one
     lights[light1["uuid"]]["size"] += lights[light2["uuid"]]["size"]
-    #nake the new light in the middle of the two
-    lights[light1["uuid"]]["x"] = (lights[light1["uuid"]]["x"] + lights[light2["uuid"]]["x"]) / 2
-    lights[light1["uuid"]]["y"] = (lights[light1["uuid"]]["y"] + lights[light2["uuid"]]["y"]) / 2
     # Recalculate the radius
     lights[light1["uuid"]]["radius"] = ((lights[light1["uuid"]]["size"] + 0.5) * 8) - 4
+
+    global vineBoomSound
+    vineBoomSound.rewind()
+    vineBoomSound.play()
 
     print("Merged", light1["uuid"], light2["uuid"])
     # remove the smaller light
@@ -82,6 +80,7 @@ def light_drawAll():
     handleDrag()
     light_checkCollision()
 
+
 def light_getHovered():
     for light in lights.values():
         if light["x"] + light["radius"] > mouseX and light["x"] - light["radius"] < mouseX:
@@ -104,5 +103,10 @@ def handleDrag():
         currDraggingLight = None
 
     if currDraggingLight != None:
+        # draw a dot as a visual cue
+        stroke(255, 0, 0)
+        strokeWeight(2)
+        fill(0, 0, 0, 0)
+        ellipse(currDraggingLight["x"], currDraggingLight["y"], 10, 10)
         currDraggingLight["x"] = mouseX
         currDraggingLight["y"] = mouseY

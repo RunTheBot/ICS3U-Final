@@ -13,6 +13,7 @@ def transition_play(transition):
     print("Transitioning to screen: " + str(transition["nextScreen"]))
     play_animation(transition["animation"])
     if transition["animation"]["looped"]:
+        background(0)
         switchScreen(transition["nextScreen"])
         return True
     draw_animation(transition["animation"])

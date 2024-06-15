@@ -10,17 +10,25 @@ from util.sunUtil import *
 from Screens.InstructionScreen import *
 from util.triggerUtil import *
 
+add_library('minim') #!Compliler_
 
 def setup():
     size(1280, 720)
-    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands
+    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands, minim, vineBoomSound
     centerX, centerY = width // 2, height // 2
     buttons = []
-    commands = []
+    commands = {}
     loadSun()
     tick_setup()
     trigger_setup()
     light_setup()
+    minim=Minim(this)
+
+    music = minim.loadFile("game.mp3")
+    vineBoomSound = minim.loadFile("vineboom.mp3")
+    music.play()
+    music.loop()
+    
     # Screen manager setup
     global currentScreen, SCREENS
 
@@ -47,8 +55,12 @@ def setup():
 
     maskTransition_setup()
 
+    font = createFont("Minecraft.ttf", 50)
+    textFont(font)
+
     currentScreen = SCREENS["MAIN_MENU"]
     currentScreen["init"]()
+
 
 def draw():
     global buttons, mousePressedTrigger
@@ -64,9 +76,9 @@ def draw():
     for button in buttons:
         button_draw(button)
 
-    for idx, command in enumerate(commands):
+    for uuid, command in commands.items():
         if command():
-            commands.pop(idx)
+            del commands[uuid]
         
 
 

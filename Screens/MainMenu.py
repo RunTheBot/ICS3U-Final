@@ -1,8 +1,9 @@
+import uuid
 from Processing3 import *
 from components.button import *
 from util.sunUtil import draw_sun
 from util.screenManager import *
-from util.maskTransition import maskTransition_draw
+from util.maskTransition import *
 
 def mainMenu_draw():
     draw_sun()
@@ -30,7 +31,7 @@ def mainMenu_init():
             None, 
             buttonHover,
             textHover,
-            lambda: commands.append(maskTransition_draw)
+            lambda: commands.setdefault(str(uuid.uuid4()), maskTransition_draw)
         )
     )
     buttons.append(

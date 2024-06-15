@@ -3,7 +3,7 @@ import os
 
 def create_circle_mask(radius, step):
     # Define the image size (720p), but create the image at a smaller size for the pixel art effect
-    width, height = 160, 90
+    width, height = 320, 320
 
     # Calculate the center of the image
     center = (width // 2, height // 2)
@@ -20,7 +20,7 @@ def create_circle_mask(radius, step):
         draw.ellipse((center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius), fill=(255, 255, 255, 255))
 
         # Scale the image up to create the pixel art effect
-        img = img.resize((1280,720), Image.NEAREST)
+        img = img.resize((2560, 2560), Image.NEAREST)
 
         # Save the image
         img.save(f'light_{radius}.png')
@@ -35,5 +35,5 @@ def test_draw_one_frame():
     create_circle_mask(91, 91)
 
 
-create_circle_mask(91, 1)
+create_circle_mask(182, 1)
 # create_white_circle(0, 1)
