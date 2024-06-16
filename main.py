@@ -14,11 +14,12 @@ add_library('minim') #!Compliler_
 
 def setup():
     size(1280, 720)
-    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands, minim, vineBoomSound
+    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands, minim, vineBoomSound, sun, sky
+    sun = None
+    sky = None
     centerX, centerY = width // 2, height // 2
     buttons = []
     commands = {}
-    loadSun()
     tick_setup()
     trigger_setup()
     light_setup()
@@ -36,18 +37,20 @@ def setup():
         "MAIN_MENU": {
             "draw": mainMenu_draw,
             "setup": lambda: None,
-            "init": mainMenu_init
+            "init": mainMenu_init,
+            "cleanup": mainMenu_cleanup
         },
         "GAME": {
             "draw": gameScreen_draw,
             "setup": lambda: None,
-            "init": gameScreen_init
+            "init": gameScreen_init,
+            "cleanup": lambda: None
         },
         "INSTRUCTIONS": {
             "draw": instructions_draw,
             "setup": lambda: None,
-            "init": instructions_init
-        
+            "init": instructions_init,
+            "cleanup": lambda: None
         },
         "CREDITS": 3,
         "GAME_OVER": 4

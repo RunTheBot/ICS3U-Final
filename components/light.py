@@ -43,10 +43,17 @@ def light_merge(light1, light2):
     # make sure light1 is the bigger one
     if light1["size"] < light2["size"]:
         light1, light2 = light2, light1
+    
+    light1OriginalSize = light1["size"]
+
     # add the size of the smaller light to the bigger one
     lights[light1["uuid"]]["size"] += lights[light2["uuid"]]["size"]
     # Recalculate the radius
     lights[light1["uuid"]]["radius"] = ((lights[light1["uuid"]]["size"] + 0.5) * 8) - 4
+
+    if light1OriginalSize > 7:
+        if lightAssets.get(light1OriginalSize) != None:
+            del lightAssets[light1OriginalSize]
 
     global vineBoomSound
     vineBoomSound.rewind()

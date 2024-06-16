@@ -1,7 +1,7 @@
 import uuid
 from Processing3 import *
 from components.button import *
-from util.sunUtil import draw_sun
+from util.sunUtil import *
 from util.screenManager import *
 from util.maskTransition import *
 
@@ -18,6 +18,10 @@ def mainMenu_init():
     textColor = color(255)
     buttonHover = None
     textHover = color(200, 200, 200)
+    fill(255)
+    text("Loading...", centerX, 50)
+
+    loadSun()
 
     buttons.append(
         button_constructor(
@@ -50,3 +54,5 @@ def mainMenu_init():
             
         )
     )
+def mainMenu_cleanup():
+    sun_cleanup()

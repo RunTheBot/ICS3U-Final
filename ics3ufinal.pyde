@@ -46,6 +46,7 @@ def play_animation(animation):
 # COMPILER_BEGIN: util.screenManager.py
 def switchScreen(screen):
     global currentScreen
+    currentScreen["cleanup"]()
     currentScreen = screen
     currentScreen["init"]()
     print("Switched to screen: " + str(screen))
@@ -258,8 +259,10 @@ def loadSun():
     # for i in range(300):
     #     # there are images labeled from 000 to 299
     #     sun.append(loadImage("sun/sunYellow" + str(i).zfill(3) + ".gif"))
-    sun = load_animation("sun/sunYellow", ".gif", 0, 300, 2, (centerX, centerY-110), sun_numberProcessor)
-    sky = load_animation("sun/sky/sky", ".gif", 0, 42, 10, (centerX, centerY), sky_numberProcessor)
+    if sun == None or len(sun) == 0:
+        sun = load_animation("sun/sunYellow", ".gif", 0, 300, 2, (centerX, centerY-110), sun_numberProcessor)
+    if sky == None or len(sky) == 0:
+        sky = load_animation("sun/sky/sky", ".gif", 0, 42, 10, (centerX, centerY), sky_numberProcessor)
 
 def draw_sun():
     global sun, sky, tick, centerX, centerY
@@ -270,6 +273,14 @@ def draw_sun():
     draw_animation(sky)
     play_animation(sun)
     draw_animation(sun)
+
+def sun_cleanup():
+    global sun, sky
+    del sun
+    del sky
+    sun = None
+    sky = None
+
 
 # COMPILER_END: util.sunUtil.py
 
@@ -290,6 +301,10 @@ def mainMenu_init():
     textColor = color(255)
     buttonHover = None
     textHover = color(200, 200, 200)
+    fill(255)
+    text("Loading...", centerX, 50)
+
+    loadSun()
 
     buttons.append(
         button_constructor(
@@ -322,6 +337,8 @@ def mainMenu_init():
             
         )
     )
+def mainMenu_cleanup():
+    sun_cleanup()
 
 # COMPILER_END: Screens.MainMenu.py
 
@@ -371,10 +388,17 @@ def light_merge(light1, light2):
     # make sure light1 is the bigger one
     if light1["size"] < light2["size"]:
         light1, light2 = light2, light1
+    
+    light1OriginalSize = light1["size"]
+
     # add the size of the smaller light to the bigger one
     lights[light1["uuid"]]["size"] += lights[light2["uuid"]]["size"]
     # Recalculate the radius
     lights[light1["uuid"]]["radius"] = ((lights[light1["uuid"]]["size"] + 0.5) * 8) - 4
+
+    if light1OriginalSize > 7:
+        if lightAssets.get(light1OriginalSize) != None:
+            del lightAssets[light1OriginalSize]
 
     global vineBoomSound
     vineBoomSound.rewind()
@@ -444,15 +468,16 @@ def handleDrag():
 # COMPILER_BEGIN: Screens.GameScreen.py
 import random
 
+import time
 
 def gameScreen_draw():
-    global nextSpawnTicks, centerLight, centerX, centerY, lights, bird
+    global nextSpawnTicks, centerLight, centerX, centerY, lights, bird, timer
     lights[centerLight]["x"] = centerX
     lights[centerLight]["y"] = centerY
     if nextSpawnTicks <= 0: 
         print("Spawning")
-        nextSpawnTicks = random.randint(180, 660)
-        light_constructor(random.randint(0, 4), random.randint(0, width), random.randint(0, height))
+        nextSpawnTicks = random.randint(100-lights[centerLight]["size"], 300-lights[centerLight]["size"]*2)
+        light_constructor(random.randint(0, 7), random.randint(0, width), random.randint(0, height))
     light_drawAll()
 
     image(bird, mouseX, mouseY, 100, 100)
@@ -467,15 +492,43 @@ def gameScreen_draw():
             lights = {}
             switchScreen(SCREENS["MAIN_MENU"])
         fill(255)
+        return
     
     nextSpawnTicks -= 1
 
+
+    current_time = time.time()
+    elapsed_time = current_time - start_time
+    remaining_time = end_time - current_time
+
+    fill(255)
+
+    minutes = int(remaining_time // 60)
+    seconds = int(remaining_time % 60)
+    time_text = "Time: {:02d}:{:02d}".format(minutes, seconds)
+    text(time_text, width - 100, 50)
+
+    if remaining_time <= 0:
+        background(0)
+        fill(255)
+        text("Game Over! The darkness consumed you.", centerX, centerY, 20)
+        text("Press any key to continue", centerX, centerY + 50, 20)
+        if keyPressed:
+            lights = {}
+            switchScreen(SCREENS["MAIN_MENU"])
+        fill(0)
+
+
 def gameScreen_init():
-    global buttons, centerX, centerY, SCREENS, nextSpawnTicks, lights, centerLight, bird
+    global buttons, centerX, centerY, SCREENS, nextSpawnTicks, lights, centerLight, bird, start_time, end_time
+
+    start_time = time.time()
+    end_time = start_time + 240
+
     nextSpawnTicks = random.randint(180, 660)
     bird = loadImage("bird.png")
     buttons = []
-    centerLight = light_constructor(92, random.randint(0, width), random.randint(0, height))
+    centerLight = light_constructor(7, random.randint(0, width), random.randint(0, height))
 
 # COMPILER_END: Screens.GameScreen.py
 
@@ -541,11 +594,12 @@ add_library('minim') #!Compliler_
 
 def setup():
     size(1280, 720)
-    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands, minim, vineBoomSound
+    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands, minim, vineBoomSound, sun, sky
+    sun = None
+    sky = None
     centerX, centerY = width // 2, height // 2
     buttons = []
     commands = {}
-    loadSun()
     tick_setup()
     trigger_setup()
     light_setup()
@@ -563,18 +617,20 @@ def setup():
         "MAIN_MENU": {
             "draw": mainMenu_draw,
             "setup": lambda: None,
-            "init": mainMenu_init
+            "init": mainMenu_init,
+            "cleanup": mainMenu_cleanup
         },
         "GAME": {
             "draw": gameScreen_draw,
             "setup": lambda: None,
-            "init": gameScreen_init
+            "init": gameScreen_init,
+            "cleanup": lambda: None
         },
         "INSTRUCTIONS": {
             "draw": instructions_draw,
             "setup": lambda: None,
-            "init": instructions_init
-        
+            "init": instructions_init,
+            "cleanup": lambda: None
         },
         "CREDITS": 3,
         "GAME_OVER": 4
