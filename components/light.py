@@ -31,7 +31,7 @@ def light_draw(light):
 
     imageMode(CENTER)
     image(light_load(light["size"]), light["x"], light["y"])
-    if True:
+    if False:
         # draw a circle as radius
         stroke(255, 0, 0)
         strokeWeight(2)
@@ -39,11 +39,15 @@ def light_draw(light):
         ellipse(light["x"], light["y"], light["radius"] * 2, light["radius"] * 2)
 
 def light_merge(light1, light2):
-    global lights
+    global lights, centerLight
     # make sure light1 is the bigger one
     if light1["size"] < light2["size"]:
         light1, light2 = light2, light1
     
+    # Make sure light2 is not the center light
+    if light2["uuid"] == centerLight:
+        light1, light2 = light2, light1
+
     light1OriginalSize = light1["size"]
 
     # add the size of the smaller light to the bigger one
@@ -111,9 +115,9 @@ def handleDrag():
 
     if currDraggingLight != None:
         # draw a dot as a visual cue
-        stroke(255, 0, 0)
-        strokeWeight(2)
-        fill(0, 0, 0, 0)
-        ellipse(currDraggingLight["x"], currDraggingLight["y"], 10, 10)
+        # stroke(255, 0, 0)
+        # strokeWeight(2)
+        # fill(0, 0, 0, 0)
+        # ellipse(currDraggingLight["x"], currDraggingLight["y"], 10, 10)
         currDraggingLight["x"] = mouseX
         currDraggingLight["y"] = mouseY

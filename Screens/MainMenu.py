@@ -10,7 +10,7 @@ def mainMenu_draw():
 
 
 def mainMenu_init():
-    global buttons, centerX, SCREENS, commands
+    global buttons, centerX, SCREENS, commands, mainMusic
     buttons = []
     sizeX, sizeY = 100, 50  # Button size
     buttonCenterX = centerX - sizeX / 2
@@ -19,7 +19,8 @@ def mainMenu_init():
     buttonHover = None
     textHover = color(200, 200, 200)
     fill(255)
-    text("Loading...", centerX, 50)
+    
+    mainMusic.play()
 
     loadSun()
 
@@ -50,7 +51,7 @@ def mainMenu_init():
             None, 
             buttonHover,
             textHover,
-            lambda: switchScreen(SCREENS["INSTRUCTIONS"])
+            lambda: switchScreen(SCREENS["INSTRUCTIONS"], True)
             
         )
     )

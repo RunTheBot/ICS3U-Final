@@ -1,6 +1,7 @@
-def switchScreen(screen):
+def switchScreen(screen, bypassCleanup=False):
     global currentScreen
-    currentScreen["cleanup"]()
+    if not bypassCleanup:
+        currentScreen["cleanup"]()
     currentScreen = screen
     currentScreen["init"]()
     print("Switched to screen: " + str(screen))

@@ -44,9 +44,10 @@ def play_animation(animation):
 # COMPILER_END: util.animation.py
 
 # COMPILER_BEGIN: util.screenManager.py
-def switchScreen(screen):
+def switchScreen(screen, bypassCleanup=False):
     global currentScreen
-    currentScreen["cleanup"]()
+    if not bypassCleanup:
+        currentScreen["cleanup"]()
     currentScreen = screen
     currentScreen["init"]()
     print("Switched to screen: " + str(screen))
@@ -293,7 +294,7 @@ def mainMenu_draw():
 
 
 def mainMenu_init():
-    global buttons, centerX, SCREENS, commands
+    global buttons, centerX, SCREENS, commands, mainMusic
     buttons = []
     sizeX, sizeY = 100, 50  # Button size
     buttonCenterX = centerX - sizeX / 2
@@ -302,7 +303,8 @@ def mainMenu_init():
     buttonHover = None
     textHover = color(200, 200, 200)
     fill(255)
-    text("Loading...", centerX, 50)
+    
+    mainMusic.play()
 
     loadSun()
 
@@ -333,7 +335,7 @@ def mainMenu_init():
             None, 
             buttonHover,
             textHover,
-            lambda: switchScreen(SCREENS["INSTRUCTIONS"])
+            lambda: switchScreen(SCREENS["INSTRUCTIONS"], True)
             
         )
     )
@@ -376,7 +378,7 @@ def light_draw(light):
 
     imageMode(CENTER)
     image(light_load(light["size"]), light["x"], light["y"])
-    if True:
+    if False:
         # draw a circle as radius
         stroke(255, 0, 0)
         strokeWeight(2)
@@ -384,11 +386,15 @@ def light_draw(light):
         ellipse(light["x"], light["y"], light["radius"] * 2, light["radius"] * 2)
 
 def light_merge(light1, light2):
-    global lights
+    global lights, centerLight
     # make sure light1 is the bigger one
     if light1["size"] < light2["size"]:
         light1, light2 = light2, light1
     
+    # Make sure light2 is not the center light
+    if light2["uuid"] == centerLight:
+        light1, light2 = light2, light1
+
     light1OriginalSize = light1["size"]
 
     # add the size of the smaller light to the bigger one
@@ -456,10 +462,10 @@ def handleDrag():
 
     if currDraggingLight != None:
         # draw a dot as a visual cue
-        stroke(255, 0, 0)
-        strokeWeight(2)
-        fill(0, 0, 0, 0)
-        ellipse(currDraggingLight["x"], currDraggingLight["y"], 10, 10)
+        # stroke(255, 0, 0)
+        # strokeWeight(2)
+        # fill(0, 0, 0, 0)
+        # ellipse(currDraggingLight["x"], currDraggingLight["y"], 10, 10)
         currDraggingLight["x"] = mouseX
         currDraggingLight["y"] = mouseY
 
@@ -471,7 +477,7 @@ import random
 import time
 
 def gameScreen_draw():
-    global nextSpawnTicks, centerLight, centerX, centerY, lights, bird, timer
+    global nextSpawnTicks, centerLight, centerX, centerY, lights, bird, timer, minim, winMusic, looseMusic, mainMusic
     lights[centerLight]["x"] = centerX
     lights[centerLight]["y"] = centerY
     if nextSpawnTicks <= 0: 
@@ -486,6 +492,9 @@ def gameScreen_draw():
         nextSpawnTicks = 100000
         textSize = 20
         fill(0)
+        mainMusic.rewind()
+        mainMusic.pause()
+        winMusic.play()
         text("Game You Win!", centerX, centerY, textSize)
         text("Press any key to continue", centerX, centerY + 50, textSize)
         if keyPressed:
@@ -501,6 +510,10 @@ def gameScreen_draw():
     elapsed_time = current_time - start_time
     remaining_time = end_time - current_time
 
+    fill(0)
+    noStroke()
+    rect(width - 100, 50, 200, 20)
+
     fill(255)
 
     minutes = int(remaining_time // 60)
@@ -508,27 +521,46 @@ def gameScreen_draw():
     time_text = "Time: {:02d}:{:02d}".format(minutes, seconds)
     text(time_text, width - 100, 50)
 
+
     if remaining_time <= 0:
+        nextSpawnTicks = 100000
         background(0)
         fill(255)
         text("Game Over! The darkness consumed you.", centerX, centerY, 20)
         text("Press any key to continue", centerX, centerY + 50, 20)
+        mainMusic.rewind()
+        mainMusic.pause()
+        looseMusic.play()
         if keyPressed:
             lights = {}
             switchScreen(SCREENS["MAIN_MENU"])
         fill(0)
 
 
+
 def gameScreen_init():
-    global buttons, centerX, centerY, SCREENS, nextSpawnTicks, lights, centerLight, bird, start_time, end_time
+    global buttons, centerX, centerY, SCREENS, nextSpawnTicks, lights, centerLight, bird, start_time, end_time, mainMusic, winMusic, looseMusic
 
     start_time = time.time()
-    end_time = start_time + 240
+    end_time = start_time + 60
 
     nextSpawnTicks = random.randint(180, 660)
     bird = loadImage("bird.png")
     buttons = []
     centerLight = light_constructor(7, random.randint(0, width), random.randint(0, height))
+
+    winMusic.rewind()
+    looseMusic.rewind()
+
+def gameScreen_cleanup():
+    global bird, lights, centerLight, winMusic, looseMusic
+    winMusic.rewind()
+    looseMusic.rewind()
+    winMusic.pause()
+    looseMusic.pause()
+    
+
+
 
 # COMPILER_END: Screens.GameScreen.py
 
@@ -545,8 +577,8 @@ def instructions_draw():
     textSize(20)
     fill(255)
     text("Use the 'esc' key to return to the main menu", centerX, 400)
-    text("Use the 'q' key to quit the game", centerX, 450)
-    text("Use Mouse to move pelican around", centerX, 500)
+    text("Make sure to be fast and fight the drakness", centerX, 450)
+    text("Use Mouse to move bird around", centerX, 500)
     text("Click and drage the light together to merge them", centerX, 550)
 
 def instructions_init():
@@ -594,7 +626,7 @@ add_library('minim') #!Compliler_
 
 def setup():
     size(1280, 720)
-    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands, minim, vineBoomSound, sun, sky
+    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands, minim, vineBoomSound, sun, sky, mainMusic, winMusic, looseMusic
     sun = None
     sky = None
     centerX, centerY = width // 2, height // 2
@@ -605,10 +637,12 @@ def setup():
     light_setup()
     minim=Minim(this)
 
-    music = minim.loadFile("game.mp3")
+    mainMusic = minim.loadFile("game.mp3")
     vineBoomSound = minim.loadFile("vineboom.mp3")
-    music.play()
-    music.loop()
+    winMusic = minim.loadFile("win.mp3")
+    looseMusic = minim.loadFile("loose.mp3")
+    mainMusic.play()
+    mainMusic.loop()
     
     # Screen manager setup
     global currentScreen, SCREENS
@@ -624,16 +658,14 @@ def setup():
             "draw": gameScreen_draw,
             "setup": lambda: None,
             "init": gameScreen_init,
-            "cleanup": lambda: None
+            "cleanup": gameScreen_cleanup
         },
         "INSTRUCTIONS": {
             "draw": instructions_draw,
             "setup": lambda: None,
             "init": instructions_init,
             "cleanup": lambda: None
-        },
-        "CREDITS": 3,
-        "GAME_OVER": 4
+        }
     }
 
     maskTransition_setup()

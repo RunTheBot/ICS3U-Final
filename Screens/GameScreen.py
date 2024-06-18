@@ -5,7 +5,7 @@ from util.screenManager import *
 import time
 
 def gameScreen_draw():
-    global nextSpawnTicks, centerLight, centerX, centerY, lights, bird, timer
+    global nextSpawnTicks, centerLight, centerX, centerY, lights, bird, timer, minim, winMusic, looseMusic, mainMusic
     lights[centerLight]["x"] = centerX
     lights[centerLight]["y"] = centerY
     if nextSpawnTicks <= 0: 
@@ -20,6 +20,9 @@ def gameScreen_draw():
         nextSpawnTicks = 100000
         textSize = 20
         fill(0)
+        mainMusic.rewind()
+        mainMusic.pause()
+        winMusic.play()
         text("Game You Win!", centerX, centerY, textSize)
         text("Press any key to continue", centerX, centerY + 50, textSize)
         if keyPressed:
@@ -35,6 +38,10 @@ def gameScreen_draw():
     elapsed_time = current_time - start_time
     remaining_time = end_time - current_time
 
+    fill(0)
+    noStroke()
+    rect(width - 100, 50, 200, 20)
+
     fill(255)
 
     minutes = int(remaining_time // 60)
@@ -42,24 +49,43 @@ def gameScreen_draw():
     time_text = "Time: {:02d}:{:02d}".format(minutes, seconds)
     text(time_text, width - 100, 50)
 
+
     if remaining_time <= 0:
+        nextSpawnTicks = 100000
         background(0)
         fill(255)
         text("Game Over! The darkness consumed you.", centerX, centerY, 20)
         text("Press any key to continue", centerX, centerY + 50, 20)
+        mainMusic.rewind()
+        mainMusic.pause()
+        looseMusic.play()
         if keyPressed:
             lights = {}
             switchScreen(SCREENS["MAIN_MENU"])
         fill(0)
 
 
+
 def gameScreen_init():
-    global buttons, centerX, centerY, SCREENS, nextSpawnTicks, lights, centerLight, bird, start_time, end_time
+    global buttons, centerX, centerY, SCREENS, nextSpawnTicks, lights, centerLight, bird, start_time, end_time, mainMusic, winMusic, looseMusic
 
     start_time = time.time()
-    end_time = start_time + 240
+    end_time = start_time + 60
 
     nextSpawnTicks = random.randint(180, 660)
     bird = loadImage("bird.png")
     buttons = []
     centerLight = light_constructor(7, random.randint(0, width), random.randint(0, height))
+
+    winMusic.rewind()
+    looseMusic.rewind()
+
+def gameScreen_cleanup():
+    global bird, lights, centerLight, winMusic, looseMusic
+    winMusic.rewind()
+    looseMusic.rewind()
+    winMusic.pause()
+    looseMusic.pause()
+    
+
+

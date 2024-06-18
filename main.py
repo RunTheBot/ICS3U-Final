@@ -14,7 +14,7 @@ add_library('minim') #!Compliler_
 
 def setup():
     size(1280, 720)
-    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands, minim, vineBoomSound, sun, sky
+    global tick, buttons, sun, centerX, centerY, SCREENS, currentScreen, commands, minim, vineBoomSound, sun, sky, mainMusic, winMusic, looseMusic
     sun = None
     sky = None
     centerX, centerY = width // 2, height // 2
@@ -25,10 +25,12 @@ def setup():
     light_setup()
     minim=Minim(this)
 
-    music = minim.loadFile("game.mp3")
+    mainMusic = minim.loadFile("game.mp3")
     vineBoomSound = minim.loadFile("vineboom.mp3")
-    music.play()
-    music.loop()
+    winMusic = minim.loadFile("win.mp3")
+    looseMusic = minim.loadFile("loose.mp3")
+    mainMusic.play()
+    mainMusic.loop()
     
     # Screen manager setup
     global currentScreen, SCREENS
@@ -44,16 +46,14 @@ def setup():
             "draw": gameScreen_draw,
             "setup": lambda: None,
             "init": gameScreen_init,
-            "cleanup": lambda: None
+            "cleanup": gameScreen_cleanup
         },
         "INSTRUCTIONS": {
             "draw": instructions_draw,
             "setup": lambda: None,
             "init": instructions_init,
             "cleanup": lambda: None
-        },
-        "CREDITS": 3,
-        "GAME_OVER": 4
+        }
     }
 
     maskTransition_setup()

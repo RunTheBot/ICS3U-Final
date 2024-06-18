@@ -13,8 +13,8 @@ def instructions_draw():
     textSize(20)
     fill(255)
     text("Use the 'esc' key to return to the main menu", centerX, 400)
-    text("Use the 'q' key to quit the game", centerX, 450)
-    text("Use Mouse to move pelican around", centerX, 500)
+    text("Make sure to be fast and fight the drakness", centerX, 450)
+    text("Use Mouse to move bird around", centerX, 500)
     text("Click and drage the light together to merge them", centerX, 550)
 
 def instructions_init():
