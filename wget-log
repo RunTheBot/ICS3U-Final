@@ -1,0 +1,6 @@
+--2024-08-13 07:39:11--  https://libgen.li/get.php?md5=0e14e47b7aea176bcc5edaea97c4e63b
+Resolving libgen.li (libgen.li)... 172.67.193.122, 104.21.57.230, 2606:4700:3031::6815:39e6, ...
+Connecting to libgen.li (libgen.li)|172.67.193.122|:443... connected.
+HTTP request sent, awaiting response... 403 Forbidden
+2024-08-13 07:39:11 ERROR 403: Forbidden.
+
